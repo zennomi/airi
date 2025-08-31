@@ -4,7 +4,7 @@ import type { Cubism4InternalModel, InternalModel } from 'pixi-live2d-display/cu
 
 import { breakpointsTailwind, until, useBreakpoints, useDebounceFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { Live2DFactory, Live2DModel, MotionPriority } from 'pixi-live2d-display/cubism4'
+import { Live2DFactory, Live2DModel } from 'pixi-live2d-display/cubism4'
 import { computed, onUnmounted, ref, toRef, watch } from 'vue'
 
 import { useLive2DIdleEyeFocus } from '../../../composables/live2d'
@@ -142,19 +142,7 @@ async function loadModel() {
       await Live2DFactory.setupLive2DModel(modelInstance, modelSrcRef.value, { autoInteract: false })
     }
 
-    const EMOTION_VALUES = Object.values(EMOTION_EmotionMotionName_value)
-
-    availableMotions.value.forEach((motion) => {
-      if (motionMap.value[motion.motionName])
-        return
-
-      if (motion.motionName in EMOTION_VALUES) {
-        motionMap.value[motion.motionName] = motion.motionName
-      }
-      else {
-        motionMap.value[motion.motionName] = EmotionNeutralMotionName
-      }
-    })
+    modelInstance.interactive = true
 
     model.value = modelInstance
     pixiApp.value.stage.addChild(model.value)
@@ -172,6 +160,20 @@ async function loadModel() {
     const coreModel = internalModel.coreModel
     const motionManager = internalModel.motionManager
     coreModel.setParameterValueById('ParamMouthOpenY', mouthOpenSize.value)
+
+    const EMOTION_VALUES = Object.values(EMOTION_EmotionMotionName_value)
+
+    Object.keys(motionManager.definitions).forEach((motion) => {
+      if (motionMap.value[motion])
+        return
+
+      if (motion in EMOTION_VALUES) {
+        motionMap.value[motion] = motion
+      }
+      else {
+        motionMap.value[motion] = EmotionNeutralMotionName
+      }
+    })
 
     availableMotions.value = Object.entries(motionManager.definitions).flatMap(([motionName, definition]) => {
       if (!definition)
@@ -254,7 +256,7 @@ async function loadModel() {
 
 async function setMotion(motionName: string, index?: number) {
   // TODO: motion? Not every Live2D model has motion, we do need to help users to set motion
-  await model.value?.motion(motionName, index, MotionPriority.FORCE)
+  await model.value?.motion(motionName, index)
 }
 
 const handleResize = useDebounceFn(setScaleAndPosition, 100)

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Checkbox, FieldRange } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { Emotion } from '../../../../constants/emotions'
@@ -31,6 +32,10 @@ const {
   motionMap,
   currentMotion,
 } = storeToRefs(live2d)
+
+const uniqueMotionNames = computed(() => {
+  return Array.from(new Set(availableMotions.value.map(motion => motion.motionName)))
+})
 </script>
 
 <template>
@@ -104,11 +109,11 @@ const {
     size="sm"
     :expand="false"
   >
-    <div v-for="motion in availableMotions" :key="motion.motionName" flex items-center justify-between text-sm>
-      <span font-medium font-mono>{{ motion.motionName }}</span>
+    <div v-for="motion in uniqueMotionNames" :key="motion" flex items-center justify-between text-sm>
+      <span font-medium font-mono>{{ motion }}</span>
 
       <div flex gap-2>
-        <select v-model="motionMap[motion.motionName]">
+        <select v-model="motionMap[motion]">
           <option
             v-for="emotion in Object.keys(Emotion)" :key="emotion"
             :value="emotion"
@@ -119,7 +124,7 @@ const {
 
         <Button
           class="form-control"
-          @click="currentMotion = { group: motion.motionName }"
+          @click="currentMotion = { group: motion }"
         >
           Play
         </Button>
