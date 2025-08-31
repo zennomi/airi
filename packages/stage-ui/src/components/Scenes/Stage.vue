@@ -12,14 +12,14 @@ import { getImportUrlBundles } from '@proj-airi/drizzle-duckdb-wasm/bundles/impo
 // import { embed } from '@xsai/embed'
 import { generateSpeech } from '@xsai/generate-speech'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import Live2DScene from './Live2D.vue'
 import VRMScene from './VRM.vue'
 
 import { useDelayMessageQueue, useEmotionsMessageQueue, useMessageContentQueue } from '../../composables/queues'
 import { llmInferenceEndToken } from '../../constants'
-import { EMOTION_EmotionMotionName_value, EMOTION_VRMExpressionName_value, EmotionThinkMotionName } from '../../constants/emotions'
+import { EMOTION_EmotionMotionName_value, EMOTION_THINK, EMOTION_VRMExpressionName_value } from '../../constants/emotions'
 import { useAudioContext, useSpeakingStore } from '../../stores/audio'
 import { useChatStore } from '../../stores/chat'
 import { useLive2d } from '../../stores/live2d'
@@ -165,7 +165,17 @@ const ttsQueue = createQueue<string>({
 
 const messageContentQueue = useMessageContentQueue(ttsQueue)
 
-const { currentMotion } = storeToRefs(useLive2d())
+const { currentMotion, motionMap } = storeToRefs(useLive2d())
+
+const motionsByGroup = computed(() => {
+  return Object.entries(motionMap.value).reduce((acc, [key, value]) => {
+    if (!acc[value])
+      acc[value] = []
+    acc[value].push(key)
+
+    return acc
+  }, {} as Record<string, string[]>)
+})
 
 const emotionsQueue = createQueue<Emotion>({
   handlers: [
@@ -178,7 +188,9 @@ const emotionsQueue = createQueue<Emotion>({
         await vrmViewerRef.value!.setExpression(value)
       }
       else if (stageModelRenderer.value === 'live2d') {
-        currentMotion.value = { group: EMOTION_EmotionMotionName_value[ctx.data] }
+        const emotionValue = EMOTION_EmotionMotionName_value[ctx.data]
+        if (motionsByGroup.value[emotionValue].length)
+          currentMotion.value = { group: motionsByGroup.value[emotionValue][0] }
       }
     },
   ],
@@ -233,7 +245,7 @@ onBeforeMessageComposed(async () => {
 })
 
 onBeforeSend(async () => {
-  currentMotion.value = { group: EmotionThinkMotionName }
+  emotionsQueue.enqueue(EMOTION_THINK as Emotion)
 })
 
 onTokenLiteral(async (literal) => {

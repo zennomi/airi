@@ -8,7 +8,7 @@ import { Live2DFactory, Live2DModel, MotionPriority } from 'pixi-live2d-display/
 import { computed, onUnmounted, ref, toRef, watch } from 'vue'
 
 import { useLive2DIdleEyeFocus } from '../../../composables/live2d'
-import { Emotion, EmotionNeutralMotionName } from '../../../constants/emotions'
+import { EMOTION_EmotionMotionName_value, EmotionNeutralMotionName } from '../../../constants/emotions'
 import { useLive2d } from '../../../stores/live2d'
 
 type CubismModel = Cubism4InternalModel['coreModel']
@@ -142,12 +142,17 @@ async function loadModel() {
       await Live2DFactory.setupLive2DModel(modelInstance, modelSrcRef.value, { autoInteract: false })
     }
 
+    const EMOTION_VALUES = Object.values(EMOTION_EmotionMotionName_value)
+
     availableMotions.value.forEach((motion) => {
-      if (motion.motionName in Emotion) {
-        motionMap.value[motion.fileName] = motion.motionName
+      if (motionMap.value[motion.motionName])
+        return
+
+      if (motion.motionName in EMOTION_VALUES) {
+        motionMap.value[motion.motionName] = motion.motionName
       }
       else {
-        motionMap.value[motion.fileName] = EmotionNeutralMotionName
+        motionMap.value[motion.motionName] = EmotionNeutralMotionName
       }
     })
 

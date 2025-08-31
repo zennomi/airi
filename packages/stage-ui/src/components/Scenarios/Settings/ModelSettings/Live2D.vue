@@ -3,6 +3,7 @@ import { Checkbox, FieldRange } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
+import { Emotion } from '../../../../constants/emotions'
 import { useLive2d } from '../../../../stores/live2d'
 import { useSettings } from '../../../../stores/settings'
 import { Section } from '../../../Layouts'
@@ -26,51 +27,10 @@ const live2d = useLive2d()
 const {
   scale,
   position,
+  availableMotions,
+  motionMap,
+  currentMotion,
 } = storeToRefs(live2d)
-
-// async function patchMotionMap(source: File, motionMap: Record<string, string>): Promise<File> {
-//   if (!Object.keys(motionMap).length)
-//     return source
-
-//   const jsZip = new JSZip()
-//   const zip = await jsZip.loadAsync(source)
-//   const fileName = Object.keys(zip.files).find(key => key.endsWith('model3.json'))
-//   if (!fileName) {
-//     throw new Error('model3.json not found')
-//   }
-
-//   const model3Json = await zip.file(fileName)!.async('string')
-//   const model3JsonObject = JSON.parse(model3Json)
-
-//   const motions: Record<string, { File: string }[]> = {}
-//   Object.entries(motionMap).forEach(([key, value]) => {
-//     if (motions[value]) {
-//       motions[value].push({ File: key })
-//       return
-//     }
-//     motions[value] = [{ File: key }]
-//   })
-
-//   model3JsonObject.FileReferences.Motions = motions
-
-//   zip.file(fileName, JSON.stringify(model3JsonObject, null, 2))
-//   const zipBlob = await zip.generateAsync({ type: 'blob' })
-
-//   return new File([zipBlob], source.name, {
-//     type: source.type,
-//     lastModified: source.lastModified,
-//   })
-// }
-
-// async function saveMotionMap() {
-//   const fileFromIndexedDB = await localforage.getItem<File>('live2dModel')
-//   if (!fileFromIndexedDB) {
-//     return
-//   }
-
-//   const patchedFile = await patchMotionMap(fileFromIndexedDB, motionMap.value)
-//   modelFile.value = patchedFile
-// }
 </script>
 
 <template>
@@ -133,8 +93,7 @@ const {
       {{ t('settings.live2d.theme-color-from-model.button-extract.title') }}
     </Button>
   </Section>
-  <!-- <Section
-    v-if="modelFile"
+  <Section
     :title="t('settings.live2d.edit-motion-map.title')"
     icon="i-solar:face-scan-circle-bold-duotone"
     :class="[
@@ -145,34 +104,28 @@ const {
     size="sm"
     :expand="false"
   >
-    <div v-for="motion in availableMotions" :key="motion.fileName" flex items-center justify-between text-sm>
-      <span font-medium font-mono>{{ motion.fileName }}</span>
+    <div v-for="motion in availableMotions" :key="motion.motionName" flex items-center justify-between text-sm>
+      <span font-medium font-mono>{{ motion.motionName }}</span>
 
       <div flex gap-2>
-        <select v-model="motionMap[motion.fileName]">
-          <option v-for="emotion in Object.keys(Emotion)" :key="emotion">
+        <select v-model="motionMap[motion.motionName]">
+          <option
+            v-for="emotion in Object.keys(Emotion)" :key="emotion"
+            :value="emotion"
+          >
             {{ emotion }}
           </option>
         </select>
 
         <Button
           class="form-control"
-          @click="currentMotion = { group: motion.motionName, index: motion.motionIndex }"
+          @click="currentMotion = { group: motion.motionName }"
         >
           Play
         </Button>
       </div>
     </div>
-    <Button @click="saveMotionMap">
-      Save and patch
-    </Button>
-    <a
-      mt-2 block :href="exportObjectUrl"
-      :download="`${modelFile?.name || 'live2d'}-motion-edited.zip`"
-    >
-      <Button w-full>Export</button>
-    </a>
-  </Section> -->
+  </Section>
   <Section
     :title="t('settings.live2d.focus.title')"
     icon="i-solar:eye-scan-bold-duotone"
