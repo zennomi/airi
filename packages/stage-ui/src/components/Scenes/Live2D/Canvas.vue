@@ -27,11 +27,15 @@ async function initLive2DPixiStage(parent: HTMLDivElement) {
   // We handle the interactions (e.g., mouse-based focusing at) manually
   // extensions.add(InteractionManager)
 
+  // do not use size = props.size * props.resolution, because it will cause the canvas to be blurry
   pixiApp.value = new Application({
-    width: props.width * props.resolution,
-    height: props.height * props.resolution,
+    width: props.width,
+    height: props.height,
     backgroundAlpha: 0,
     preserveDrawingBuffer: true,
+    antialias: true,
+    resolution: props.resolution, // use the correct way to set the resolution
+    autoDensity: true,
   })
 
   pixiAppCanvas.value = pixiApp.value.view

@@ -2,17 +2,14 @@
 import type { Application } from '@pixi/app'
 import type { Cubism4InternalModel, InternalModel } from 'pixi-live2d-display/cubism4'
 
-import { breakpointsTailwind, until, useBreakpoints, useDark, useDebounceFn } from '@vueuse/core'
-import { formatHex } from 'culori'
+import { breakpointsTailwind, until, useBreakpoints, useDebounceFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { DropShadowFilter } from 'pixi-filters'
 import { Live2DFactory, Live2DModel, MotionPriority } from 'pixi-live2d-display/cubism4'
-import { computed, onMounted, onUnmounted, ref, shallowRef, toRef, watch } from 'vue'
+import { computed, onUnmounted, ref, toRef, watch } from 'vue'
 
 import { useLive2DIdleEyeFocus } from '../../../composables/live2d'
 import { Emotion, EmotionNeutralMotionName } from '../../../constants/emotions'
 import { useLive2d } from '../../../stores/live2d'
-import { useSettings } from '../../../stores/settings'
 
 type CubismModel = Cubism4InternalModel['coreModel']
 type CubismEyeBlink = Cubism4InternalModel['eyeBlink']
@@ -78,16 +75,9 @@ const initialModelHeight = ref<number>(0)
 const mouthOpenSize = computed(() => Math.max(0, Math.min(100, props.mouthOpenSize)))
 const lastUpdateTime = ref(0)
 
-const dark = useDark()
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMobile = computed(() => breakpoints.between('sm', 'md').value || breakpoints.smaller('sm').value)
 const idleEyeFocus = useLive2DIdleEyeFocus()
-const dropShadowFilter = shallowRef(new DropShadowFilter({
-  alpha: 0.2,
-  blur: 0,
-  distance: 20,
-  rotation: 45,
-}))
 
 function getCoreModel() {
   return model.value!.internalModel.coreModel as any
@@ -117,11 +107,6 @@ const {
   availableMotions,
   motionMap,
 } = storeToRefs(useLive2d())
-
-const {
-  themeColorsHue,
-  themeColorsHueDynamic,
-} = storeToRefs(useSettings())
 
 const localCurrentMotion = ref<{ group: string, index: number }>({ group: 'Idle', index: 0 })
 
@@ -269,39 +254,13 @@ async function setMotion(motionName: string, index?: number) {
 
 const handleResize = useDebounceFn(setScaleAndPosition, 100)
 
-const dropShadowColorComputer = ref<HTMLDivElement>()
 const dropShadowAnimationId = ref(0)
-
-function updateDropShadowFilter() {
-  if (model.value) {
-    const color = getComputedStyle(dropShadowColorComputer.value!).backgroundColor
-    dropShadowFilter.value.color = Number(formatHex(color)!.replace('#', '0x'))
-    model.value.filters = [dropShadowFilter.value]
-  }
-}
 
 watch([() => props.width, () => props.height], () => handleResize())
 watch(modelSrcRef, async () => await loadModel(), { immediate: true })
-watch(dark, updateDropShadowFilter, { immediate: true })
-watch([model, themeColorsHue], updateDropShadowFilter)
+
 watch(offset, setScaleAndPosition)
 watch(() => props.scale, setScaleAndPosition)
-
-// TODO: This is hacky!
-function updateDropShadowFilterLoop() {
-  updateDropShadowFilter()
-  dropShadowAnimationId.value = requestAnimationFrame(updateDropShadowFilterLoop)
-}
-
-watch(themeColorsHueDynamic, () => {
-  if (themeColorsHueDynamic.value) {
-    dropShadowAnimationId.value = requestAnimationFrame(updateDropShadowFilterLoop)
-  }
-  else {
-    cancelAnimationFrame(dropShadowAnimationId.value)
-    dropShadowAnimationId.value = 0
-  }
-}, { immediate: true })
 
 watch(mouthOpenSize, value => getCoreModel().setParameterValueById('ParamMouthOpenY', value))
 watch(currentMotion, value => setMotion(value.group, value.index))
@@ -314,10 +273,6 @@ watch(focusAt, (value) => {
     return
 
   model.value.focus(value.x, value.y)
-})
-
-onMounted(async () => {
-  updateDropShadowFilter()
 })
 
 function componentCleanUp() {
@@ -346,6 +301,5 @@ if (import.meta.hot) {
 </script>
 
 <template>
-  <div ref="dropShadowColorComputer" hidden bg="primary-400 dark:primary-500" />
   <slot />
 </template>

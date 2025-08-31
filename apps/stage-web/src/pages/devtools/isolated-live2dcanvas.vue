@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { Application } from '@pixi/app'
-import { extensions } from '@pixi/extensions'
-import { Ticker, TickerPlugin } from '@pixi/ticker'
+import { Live2DCanvas } from '@proj-airi/stage-ui/components/scenes'
 import { useSettings } from '@proj-airi/stage-ui/stores/settings'
 import { storeToRefs } from 'pinia'
 import { Live2DFactory, Live2DModel } from 'pixi-live2d-display/cubism4'
@@ -15,7 +13,7 @@ const settingsStore = useSettings()
 const { stageModelSelectedUrl } = storeToRefs(settingsStore)
 
 // Component state
-const pixiContainer = ref<HTMLDivElement>()
+const live2dCanvasRef = ref<InstanceType<typeof Live2DCanvas>>()
 const modelUrl = ref('')
 const isModelLoaded = ref(false)
 const modelStatus = ref<'idle' | 'loading' | 'loaded' | 'error'>('idle')
@@ -30,35 +28,20 @@ const modelScale = ref(1)
 const modelPosition = ref({ x: 0, y: 0 })
 const modelRotation = ref(0)
 
+// PIXI.js size information
+const appSize = ref({ width: 0, height: 0 })
+const rendererSize = ref({ width: 0, height: 0 })
+const canvasSize = ref({ width: 0, height: 0 })
+const containerSize = ref({ width: 0, height: 0 })
+const stageSize = ref({ width: 0, height: 0 })
+const viewportSize = ref({ width: 0, height: 0 })
+const resolution = ref(1)
+const devicePixelRatio = ref(1)
+
 // PIXI application and model
-let app: Application | null = null
+let app: any = null
 let live2dModel: Live2DModel | null = null
 let animationFrameId: number | null = null
-
-// Initialize PIXI application
-function initializePixi() {
-  if (!pixiContainer.value)
-    return
-
-  // Register Live2D ticker and extensions
-  Live2DModel.registerTicker(Ticker)
-  extensions.add(TickerPlugin)
-
-  app = new Application({
-    width: 800,
-    height: 600,
-    backgroundAlpha: 0,
-    preserveDrawingBuffer: true,
-    antialias: true,
-    resolution: window.devicePixelRatio || 1,
-    autoDensity: true,
-  })
-
-  pixiContainer.value.appendChild(app.view as HTMLCanvasElement)
-
-  // Start FPS counter
-  startFpsCounter()
-}
 
 // Start FPS counter
 function startFpsCounter() {
@@ -73,12 +56,66 @@ function startFpsCounter() {
       currentFps.value = frameCount
       frameCount = 0
       lastTime = currentTime
+
+      // Update size information every second along with FPS
+      updateSizeInfo()
     }
 
     animationFrameId = requestAnimationFrame(countFps)
   }
 
   countFps()
+}
+
+// Update PIXI.js size information
+function updateSizeInfo() {
+  if (!app)
+    return
+
+  // Application size
+  appSize.value = {
+    width: app.screen.width,
+    height: app.screen.height,
+  }
+
+  // Renderer size
+  rendererSize.value = {
+    width: app.renderer.width,
+    height: app.renderer.height,
+  }
+
+  // Canvas size (view dimensions)
+  canvasSize.value = {
+    width: app.view.width,
+    height: app.view.height,
+  }
+
+  // Container size (canvas element)
+  if (live2dCanvasRef.value) {
+    const canvas = live2dCanvasRef.value.canvasElement()
+    if (canvas) {
+      containerSize.value = {
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      }
+    }
+  }
+
+  // Stage size
+  stageSize.value = {
+    width: app.stage.width,
+    height: app.stage.height,
+  }
+
+  // Viewport size (renderer viewport)
+  viewportSize.value = {
+    width: app.renderer.width,
+    height: app.renderer.height,
+  }
+
+  // Resolution and device pixel ratio
+  resolution.value = app.renderer.resolution
+  devicePixelRatio.value = window.devicePixelRatio || 1
 }
 
 // Load model from settings
@@ -103,11 +140,6 @@ async function loadModel() {
       live2dModel.destroy()
       live2dModel = null
     }
-
-    // Validate model URL
-    // if (!modelUrl.value.startsWith('blob:') && !modelUrl.value.startsWith('http') && !modelUrl.value.startsWith('file:')) {
-    //   throw new Error('Invalid model URL format. Must be a blob URL, HTTP URL, or file URL.')
-    // }
 
     // Load new model using Live2DModel.from
     try {
@@ -152,6 +184,9 @@ async function loadModel() {
 
     // Set initial transform
     updateModelTransform()
+
+    // Update size information after model is loaded
+    updateSizeInfo()
 
     // Start model animation
     live2dModel.on('hit', (_hitAreas) => {
@@ -208,6 +243,18 @@ function playMotion(motionName: string) {
   }
 }
 
+// Handle canvas ready
+function handleCanvasReady(canvasApp: any) {
+  app = canvasApp
+  updateSizeInfo()
+  startFpsCounter()
+
+  // Auto-load model from settings if available
+  if (stageModelSelectedUrl.value) {
+    modelUrl.value = stageModelSelectedUrl.value
+  }
+}
+
 // Watch for settings changes
 watch(stageModelSelectedUrl, (newUrl) => {
   if (newUrl && newUrl !== modelUrl.value) {
@@ -220,12 +267,8 @@ watch(stageModelSelectedUrl, (newUrl) => {
 
 // Lifecycle
 onMounted(() => {
-  initializePixi()
-
-  // Auto-load model from settings if available
-  if (stageModelSelectedUrl.value) {
-    modelUrl.value = stageModelSelectedUrl.value
-  }
+  // Add resize listener
+  window.addEventListener('resize', updateSizeInfo)
 })
 
 onUnmounted(() => {
@@ -237,9 +280,8 @@ onUnmounted(() => {
     live2dModel.destroy()
   }
 
-  if (app) {
-    app.destroy(true)
-  }
+  // Remove resize listener
+  window.removeEventListener('resize', updateSizeInfo)
 })
 </script>
 
@@ -247,7 +289,7 @@ onUnmounted(() => {
   <div class="live2d-preview-page">
     <div class="header">
       <h1 class="title">
-        Live2D Model Preview
+        Live2D Canvas Preview
       </h1>
       <div class="controls">
         <div class="control-group">
@@ -274,19 +316,27 @@ onUnmounted(() => {
     </div>
 
     <div class="preview-container">
-      <div ref="pixiContainer" class="pixi-container" />
-
-      <div v-if="!isModelLoaded" class="placeholder">
-        <div class="placeholder-content">
-          <div class="placeholder-icon">
-            🎭
+      <Live2DCanvas
+        ref="live2dCanvasRef"
+        v-slot="{ app: pixiApp }"
+        :width="800"
+        :height="600"
+        :resolution="2"
+        class="pixi-container"
+      >
+        <div v-if="pixiApp" v-show="false" @vue:mounted="handleCanvasReady(pixiApp)" />
+        <div v-if="!isModelLoaded" class="placeholder">
+          <div class="placeholder-content">
+            <div class="placeholder-icon">
+              🎭
+            </div>
+            <p>No model loaded</p>
+            <p class="placeholder-subtitle">
+              Enter a Live2D model URL and click "Load Model" to preview
+            </p>
           </div>
-          <p>No model loaded</p>
-          <p class="placeholder-subtitle">
-            Enter a Live2D model URL and click "Load Model" to preview
-          </p>
         </div>
-      </div>
+      </Live2DCanvas>
 
       <div v-if="isModelLoaded" class="model-info">
         <h3>Model Information</h3>
@@ -304,6 +354,44 @@ onUnmounted(() => {
           <div class="info-item">
             <span class="label">Model Size:</span>
             <span class="value">{{ modelWidth }} × {{ modelHeight }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pixi-info">
+        <h3>PIXI.js Object Sizes</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Application Size:</span>
+            <span class="value">{{ appSize.width }} × {{ appSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Renderer Size:</span>
+            <span class="value">{{ rendererSize.width }} × {{ rendererSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Canvas Size:</span>
+            <span class="value">{{ canvasSize.width }} × {{ canvasSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Container Size:</span>
+            <span class="value">{{ containerSize.width }} × {{ containerSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Stage Size:</span>
+            <span class="value">{{ stageSize.width }} × {{ stageSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Viewport Size:</span>
+            <span class="value">{{ viewportSize.width }} × {{ viewportSize.height }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Resolution:</span>
+            <span class="value">{{ resolution.toFixed(2) }}x</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Device Pixel Ratio:</span>
+            <span class="value">{{ devicePixelRatio.toFixed(2) }}x</span>
           </div>
         </div>
       </div>
@@ -508,7 +596,8 @@ onUnmounted(() => {
   margin-top: 8px;
 }
 
-.model-info {
+.model-info,
+.pixi-info {
   margin-top: 20px;
   padding: 20px;
   background-color: #f8f9fa;
