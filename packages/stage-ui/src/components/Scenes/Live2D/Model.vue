@@ -41,6 +41,9 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
   (e: 'modelLoaded'): void
+  (e: 'motionStart', group: string, index: number): void
+  (e: 'motionEnd'): void
+  (e: 'hit', hitAreas: string[]): void
 }>()
 
 function parsePropsOffset() {
@@ -151,15 +154,14 @@ async function loadModel() {
     model.value.anchor.set(0.5, 0.5)
     setScaleAndPosition()
 
-    model.value.on('hit', (hitAreas) => {
-      if (model.value && hitAreas.includes('body'))
-        model.value.motion('tap_body')
-    })
-
     const internalModel = model.value.internalModel
     const coreModel = internalModel.coreModel
     const motionManager = internalModel.motionManager
     coreModel.setParameterValueById('ParamMouthOpenY', mouthOpenSize.value)
+
+    model.value.on('hit', (hitAreas) => {
+      emits('hit', hitAreas)
+    })
 
     const EMOTION_VALUES = Object.values(EMOTION_EmotionMotionName_value)
 
@@ -245,6 +247,11 @@ async function loadModel() {
 
     motionManager.on('motionStart', (group, index) => {
       localCurrentMotion.value = { group, index }
+      emits('motionStart', group, index)
+    })
+
+    motionManager.on('motionFinish', () => {
+      emits('motionEnd')
     })
 
     emits('modelLoaded')

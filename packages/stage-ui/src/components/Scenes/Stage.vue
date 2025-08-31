@@ -24,6 +24,7 @@ import { useAudioContext, useSpeakingStore } from '../../stores/audio'
 import { useChatStore } from '../../stores/chat'
 import { useLive2d } from '../../stores/live2d'
 import { useSpeechStore } from '../../stores/modules/speech'
+import { useTrainingPointsStore } from '../../stores/modules/training-points'
 import { useProvidersStore } from '../../stores/providers'
 import { useSettings } from '../../stores/settings'
 import { useVRM } from '../../stores/vrm'
@@ -36,6 +37,24 @@ withDefaults(defineProps<{
   yOffset?: number | string
   scale?: number
 }>(), { paused: false, scale: 1 })
+
+// Training points store
+const trainingPointsStore = useTrainingPointsStore()
+const {
+  trainingPoints,
+  showPointsEarned,
+  pointUpdating,
+} = storeToRefs(trainingPointsStore)
+
+// Wrapper functions to call store methods
+function handleHitEvent() {
+  trainingPointsStore.handlePointUpdateEvent()
+}
+
+function handleMotionEnd() {
+  if (pointUpdating)
+    trainingPointsStore.setPointUpdating(false)
+}
 
 const db = ref<DuckDBWasmDrizzleDatabase>()
 // const transformersProvider = createTransformers({ embedWorkerURL })
@@ -307,6 +326,8 @@ defineExpose({
         :y-offset="yOffset"
         :scale="scale"
         :disable-focus-at="live2dDisableFocus"
+        @hit="handleHitEvent"
+        @motion-end="handleMotionEnd"
       />
       <VRMScene
         v-if="stageModelRenderer === 'vrm' && showStage"
@@ -318,6 +339,25 @@ defineExpose({
         :show-axes="stageViewControlsEnabled"
         @error="console.error"
       />
+
+      <!-- Training Points Display -->
+      <div
+        class="absolute left-4 top-4 border border-white/20 rounded-lg bg-black/20 px-3 py-2 text-sm text-white font-medium backdrop-blur-sm"
+      >
+        <div class="flex items-center gap-2">
+          <span>Training Points: {{ trainingPoints }}</span>
+        </div>
+      </div>
+
+      <!-- Points Earned Animation -->
+      <div
+        v-if="showPointsEarned"
+        class="pointer-events-none absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      >
+        <div class="animate-pulse text-4xl text-green-400 font-bold">
+          +1 Point!
+        </div>
+      </div>
     </div>
   </div>
 </template>

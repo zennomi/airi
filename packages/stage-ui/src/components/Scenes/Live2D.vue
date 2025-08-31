@@ -24,7 +24,29 @@ withDefaults(defineProps<{
   scale: 1,
 })
 
+const emit = defineEmits<{
+  (e: 'motionStart', group: string, index: number): void
+  (e: 'motionEnd'): void
+  (e: 'hit', hitAreas: string[]): void
+}>()
+
 const live2dCanvasRef = ref<InstanceType<typeof Live2DCanvas>>()
+
+// Event handlers for motion events
+function onMotionStart(group: string, index: number) {
+  // Emit motion start event to parent
+  emit('motionStart', group, index)
+}
+
+function onMotionEnd() {
+  // Emit motion end event to parent
+  emit('motionEnd')
+}
+
+function onHit(hitAreas: string[]) {
+  // Emit hit event to parent
+  emit('hit', hitAreas)
+}
 
 defineExpose({
   canvasElement: () => {
@@ -55,6 +77,9 @@ defineExpose({
         :y-offset="yOffset"
         :scale="scale"
         :disable-focus-at="disableFocusAt"
+        @hit="onHit"
+        @motion-start="onMotionStart"
+        @motion-end="onMotionEnd"
       />
     </Live2DCanvas>
   </Screen>
