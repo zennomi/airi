@@ -61,6 +61,7 @@
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
+    "mediabunny": "^1.11.2",
     "nanoid": "^5.1.5",
     "node-vibrant": "^4.0.3",
     "nprogress": "^0.2.0",
