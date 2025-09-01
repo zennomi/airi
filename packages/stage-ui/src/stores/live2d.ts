@@ -35,6 +35,7 @@ export const useLive2d = defineStore('live2d', () => {
   }))
   const currentMotion = ref<{ group: string, index?: number }>({ group: 'Idle', index: 0 })
   const availableMotions = ref<{ motionName: string, motionIndex: number, fileName: string }[]>([])
+  const availableExpressions = ref<{ expressionName: string, fileName: string }[]>([])
   const motionMap = useLocalStorage<Record<string, string>>('settings/live2d/motion-map', {})
   const scale = useLocalStorage('settings/live2d/scale', 1)
 
@@ -43,6 +44,7 @@ export const useLive2d = defineStore('live2d', () => {
     positionInPercentageString,
     currentMotion,
     availableMotions,
+    availableExpressions,
     motionMap,
     scale,
 

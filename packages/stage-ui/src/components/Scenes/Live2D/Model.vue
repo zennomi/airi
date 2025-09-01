@@ -108,6 +108,7 @@ function setScaleAndPosition() {
 const {
   currentMotion,
   availableMotions,
+  availableExpressions,
   motionMap,
 } = storeToRefs(useLive2d())
 
@@ -188,6 +189,13 @@ async function loadModel() {
       }))
     }).filter(Boolean)
 
+    availableExpressions.value = (motionManager.expressionManager?.definitions || []).map((expression) => {
+      return {
+        expressionName: expression.Name,
+        fileName: expression.File,
+      }
+    }).filter(Boolean)
+
     // Remove eye ball movements from idle motion group to prevent conflicts
     // This is too hacky
     // FIXME: it cannot blink if loading a model only have idle motion
@@ -255,6 +263,8 @@ async function loadModel() {
     })
 
     emits('modelLoaded')
+
+    model.value.internalModel.coreModel.setParameterValueById('Param_Blush', 10)
   }
   finally {
     modelLoading.value = false
@@ -263,7 +273,11 @@ async function loadModel() {
 
 async function setMotion(motionName: string, index?: number) {
   // TODO: motion? Not every Live2D model has motion, we do need to help users to set motion
-  await model.value?.motion(motionName, index)
+  return !!(await model.value?.motion(motionName, index))
+}
+
+async function setExpression(expressionName: string) {
+  return !!(await model.value?.expression(expressionName))
 }
 
 const handleResize = useDebounceFn(setScaleAndPosition, 100)
@@ -301,9 +315,15 @@ function listMotionGroups() {
   return availableMotions.value
 }
 
+function listExpressions() {
+  return availableExpressions.value
+}
+
 defineExpose({
   setMotion,
+  setExpression,
   listMotionGroups,
+  listExpressions,
 })
 
 if (import.meta.hot) {

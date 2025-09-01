@@ -10,12 +10,19 @@ const live2dModelRef = ref<InstanceType<typeof Live2DModel>>()
 
 const settingsStore = useSettings()
 const { stageModelSelectedUrl } = storeToRefs(settingsStore)
-const motion = ref<string>('idle')
+const motion = ref<string | undefined>()
 const motionGroupsList = ref<{
   motionName: string
   motionIndex: number
   fileName: string
 }[]>([])
+
+const expressionList = ref<{
+  expressionName: string
+  fileName: string
+}[]>([])
+
+const expression = ref<string | undefined>()
 
 function download(href: string, name: string) {
   const link = document.createElement('a')
@@ -26,8 +33,19 @@ function download(href: string, name: string) {
   document.body.removeChild(link)
 }
 
-function handleSetMotion(motionName: string) {
-  live2dModelRef.value?.setMotion(motionName)
+function handleSetMotion(motionName?: string) {
+  const motionItem = motionGroupsList.value.find(item => item.fileName === motionName)
+  if (!motionItem)
+    return
+
+  live2dModelRef.value?.setMotion(motionItem.motionName, motionItem.motionIndex)
+}
+
+function handleSetExpression(expressionName?: string) {
+  if (!expressionName)
+    return
+
+  live2dModelRef.value?.setExpression(expressionName)
 }
 
 watch(live2dModelRef, (model) => {
@@ -36,8 +54,8 @@ watch(live2dModelRef, (model) => {
 
 function handleModelLoaded() {
   if (live2dModelRef.value) {
-    live2dModelRef.value?.setMotion(motion.value)
     motionGroupsList.value = live2dModelRef.value.listMotionGroups()
+    expressionList.value = live2dModelRef.value.listExpressions()
   }
 }
 
@@ -77,8 +95,15 @@ function handleShot() {
     </div>
     <div>
       <select v-model="motion" rounded-lg px-3 py-2 @change="handleSetMotion(motion)">
-        <option v-for="motionItem in motionGroupsList" :key="motionItem.motionIndex" :value="motionItem.motionName">
+        <option v-for="motionItem in motionGroupsList" :key="motionItem.motionIndex" :value="motionItem.fileName">
           {{ motionItem.fileName }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <select v-model="expression" rounded-lg px-3 py-2 @change="handleSetExpression(expression)">
+        <option v-for="expressionItem in expressionList" :key="expressionItem.expressionName" :value="expressionItem.expressionName">
+          {{ expressionItem.expressionName }}
         </option>
       </select>
     </div>
