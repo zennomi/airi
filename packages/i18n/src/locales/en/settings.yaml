@@ -200,6 +200,10 @@ pages:
     hearing:
       description: Configure how speech recognition works
       title: Hearing
+      sections:
+        section:
+          provider-selection:
+            description: Select the suitable speech recognition provider
     memory-long-term:
       description: Long-term memory specific settings and management
       title: Long-Term Memory
