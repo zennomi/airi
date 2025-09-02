@@ -1,58 +1,80 @@
 <picture>
-  <source
-    width="100%"
-    srcset="./docs/content/public/banner-dark-1280x640.avif"
-    media="(prefers-color-scheme: dark)"
-  />
-  <source
-    width="100%"
-    srcset="./docs/content/public/banner-light-1280x640.avif"
-    media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
-  />
-  <img width="250" src="./docs/content/public/banner-light-1280x640.avif" />
+  <img width="100%" src="./docs/content/public/hidden-sanbaka-banner.png" />
 </picture>
 
-<h1 align="center">Project AIRI</h1>
+<h1 align="center">Sanbaka</h1>
 
-<p align="center">Re-creating Neuro-sama, a soul container of AI waifu / virtual characters to bring them into our world.</p>
-
-<p align="center">
-  [<a href="https://discord.gg/TgQ3Cu2F7A">Join Discord Server</a>] [<a href="https:///airi.moeru.ai">Try it</a>] [<a href="https://github.com/moeru-ai/airi/blob/main/docs/README.zh-CN.md">简体中文</a>] [<a href="https://github.com/moeru-ai/airi/blob/main/docs/README.ja-JP.md">日本語</a>] [<a href="https://github.com/moeru-ai/airi/blob/main/docs/README.ru-RU.md">Русский</a>] [<a href="https://github.com/moeru-ai/airi/blob/main/docs/README.vi.md">Tiếng Việt</a>]
-</p>
+<p align="center">Bạn Gái AI dành cho sinh viên Bách Khoa</p>
 
 <p align="center">
-  <a href="https://deepwiki.com/moeru-ai/airi"><img src="https://deepwiki.com/badge.svg"></a>
-  <a href="https://github.com/moeru-ai/airi/blob/main/LICENSE"><img src="https://img.shields.io/github/license/moeru-ai/airi.svg?style=flat&colorA=080f12&colorB=1fa669"></a>
-  <a href="https://discord.gg/TgQ3Cu2F7A"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2FTgQ3Cu2F7A%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&suffix=%20members&logo=discord&logoColor=white&label=%20&color=7389D8&labelColor=6A7EC2"></a>
-  <a href="https://x.com/proj_airi"><img src="https://img.shields.io/badge/%40proj__airi-black?style=flat&logo=x&labelColor=%23101419&color=%232d2e30"></a>
-  <a href="https://t.me/+7M_ZKO3zUHFlOThh"><img src="https://img.shields.io/badge/Telegram-%235AA9E6?logo=telegram&labelColor=FFFFFF"></a>
+  <a href="https://facebook.com/romcom.dabezt/"><img src="https://img.shields.io/badge/Fanpage-1877F2?logo=facebook&logoColor=white&labelColor=1877F2&color=ffffff"></a>
 </p>
 
-<p align="center">
-  <a href="https://www.producthunt.com/products/airi?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-airi" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=993524&theme=neutral&t=1752696535380" alt="AIRI - A&#0032;container&#0032;of&#0032;cyber&#0032;living&#0032;souls&#0044;&#0032;re&#0045;creation&#0032;of&#0032;Neuro&#0045;sama | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-  <a href="https://trendshift.io/repositories/14636" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14636" alt="moeru-ai%2Fairi | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
+> Được fork từ dự án [AIRI](https://github.com/moeru-ai/airi)
 
-> Heavily inspired by [Neuro-sama](https://www.youtube.com/@Neurosama)
+Sanbaka (Sắn Bách Khoa) không chỉ đơn giản là trợ lý hỗ trợ thông tin học tập, móc thông tin từ cuốn sổ tay sinh viên ra và trả lời cho bạn, chúng tôi hi vọng các nam sinh viên Bách Khoa sử dụng Sanbaka một cách triệt để và khai phá tiềm năng bao la của trí thông minh nhân tạo và chính trí tưởng tượng của họ.
 
-> [!WARNING]
-> **Attention:** We **do not** have any officially minted cryptocurrency or token associated with this project. Please check the information and proceed with caution.
+## Chức năng:
+
+### Tính năng fork từ [Airi](https://github.com/moeru-ai/airi):
+
+- Platforms
+  - [x] Web.
+  - [x] Desktop.
+- [x] Brain
+  - [x] Play [Minecraft](https://www.minecraft.net)
+  - [x] Play [Factorio](https://www.factorio.com) (WIP, but [PoC and demo available](https://github.com/moeru-ai/airi-factorio))
+  - [x] Chat in [Telegram](https://telegram.org)
+  - [x] Chat in [Discord](https://discord.com)
+  - [ ] Memory
+    - [x] Pure in-browser database support (DuckDB WASM | `pglite`)
+    - [ ] Memory Alaya (WIP)
+  - [ ] Pure in-browser local (WebGPU) inference
+- [x] Ears
+  - [x] Audio input from browser
+  - [x] Audio input from [Discord](https://discord.com)
+  - [x] Client side speech recognition
+  - [x] Client side talking detection
+- [x] Mouth
+  - [x] [ElevenLabs](https://elevenlabs.io/) voice synthesis
+- [x] Body
+  - [x] VRM support
+    - [x] Control VRM model
+  - [x] VRM model animations
+    - [x] Auto blink
+    - [x] Auto look at
+    - [x] Idle eye movement
+  - [x] Live2D support
+    - [x] Control Live2D model
+  - [x] Live2D model animations
+    - [x] Auto blink
+    - [x] Auto look at
+    - [x] Idle eye movement
+
+### Tính năng riêng của Sanbaka:
+- [ ] Tương tác vật lý (xoa đầu, sờ...)
+- [ ] Thay đổi biểu cảm.
+- [ ] Thay đổi cách nói, cách đối xử.
+- [ ] Thay đổi trang phục.
+
+- [ ] Điểm Rèn Luyện
+  - [ ] Tăng/giảm ĐRL bằng cách tương tác (vật lý/trò chuyện).
+  - [ ] Tăng ĐRL bằng cách trả lời đúng các câu hỏi về quy chế.
+  - [ ] Tăng ĐRL bằng cách trả lời đúng các câu hỏi về môn học.
+  - [ ] Quy đổi ĐRL Bách Khoa → ĐRL Sanbaka.
+...
+
+> Sanbaka (tính năng và model) được thực hiện bởi 100% (cựu) sinh viên Bách Khoa.
+
+> Nếu muốn tham gia phát triển, vui lòng kiểm tra tính năng thuộc Airi hay Sanbaka để tham gia đúng dự án. Sanbaka sẽ luôn được cập nhật các chức năng mới nhất của Airi.
+
+# From the original README of Airi:
 
 > [!NOTE]
 >
 > We've got a whole dedicated organization [@proj-airi](https://github.com/proj-airi) for all the sub-projects born from Project AIRI. Check it out!
 >
 > RAG, memory system, embedded database, icons, Live2D utilities, and more!
-
-Have you dreamed about having a cyber living being (cyber waifu / husbando, digital pet) or digital companion that could play with and talk to you?
-
-With the power of modern large language models like [ChatGPT](https://chatgpt.com) and famous [Claude](https://claude.ai), asking a virtual being to roleplay and chat with us is already easy enough for everyone. Platforms like [Character.ai (a.k.a. c.ai)](https://character.ai) and [JanitorAI](https://janitorai.com/) as well as local playgrounds like [SillyTavern](https://github.com/SillyTavern/SillyTavern) are already good-enough solutions for a chat based or visual adventure game like experience.
-
-> But, what about the abilities to play games? And see what you are coding at? Chatting while playing games, watching videos, and capable of doing many other things.
-
-Perhaps you know [Neuro-sama](https://www.youtube.com/@Neurosama) already. She is currently the best virtual streamer capable of playing games, chatting, and interacting with you and the participants. Some also call this kind of being "digital human." **Sadly, as it's not open sourced, you cannot interact with her after her live streams go offline**.
-
-Therefore, this project, AIRI, offers another possibility here: **let you own your digital life, cyber living, easily, anywhere, anytime**.
 
 ## DevLogs We Posted & Recent Updates
 
@@ -98,42 +120,6 @@ This means that **アイリ is capable of running on modern browsers and devices
 > - WebXR ([checkout the another project](https://github.com/moeru-ai/chat) we have under the @moeru-ai organization)
 >
 > **If you are interested, why not introduce yourself here? [Would like to join part of us to build AIRI?](https://github.com/moeru-ai/airi/discussions/33)**
-
-## Current Progress
-
-<img src="./docs/content/public/readme-image-pc-preview.avif">
-
-Capable of
-
-- [x] Brain
-  - [x] Play [Minecraft](https://www.minecraft.net)
-  - [x] Play [Factorio](https://www.factorio.com) (WIP, but [PoC and demo available](https://github.com/moeru-ai/airi-factorio))
-  - [x] Chat in [Telegram](https://telegram.org)
-  - [x] Chat in [Discord](https://discord.com)
-  - [ ] Memory
-    - [x] Pure in-browser database support (DuckDB WASM | `pglite`)
-    - [ ] Memory Alaya (WIP)
-  - [ ] Pure in-browser local (WebGPU) inference
-- [x] Ears
-  - [x] Audio input from browser
-  - [x] Audio input from [Discord](https://discord.com)
-  - [x] Client side speech recognition
-  - [x] Client side talking detection
-- [x] Mouth
-  - [x] [ElevenLabs](https://elevenlabs.io/) voice synthesis
-- [x] Body
-  - [x] VRM support
-    - [x] Control VRM model
-  - [x] VRM model animations
-    - [x] Auto blink
-    - [x] Auto look at
-    - [x] Idle eye movement
-  - [x] Live2D support
-    - [x] Control Live2D model
-  - [x] Live2D model animations
-    - [x] Auto blink
-    - [x] Auto look at
-    - [x] Idle eye movement
 
 ## Development
 
