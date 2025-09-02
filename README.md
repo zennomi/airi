@@ -1,5 +1,5 @@
 <picture>
-  <img width="100%" src="./docs/content/public/hidden-sanbaka-banner.png" />
+  <img width="100%" src="./docs/content/public/hidden-sanbaka-banner.jpg" />
 </picture>
 
 <h1 align="center">Sanbaka</h1>
