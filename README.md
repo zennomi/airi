@@ -68,6 +68,11 @@ Sanbaka (Sắn Bách Khoa) không chỉ đơn giản là trợ lý hỗ trợ th
 
 > Nếu muốn tham gia phát triển, vui lòng kiểm tra tính năng thuộc Airi hay Sanbaka để tham gia đúng dự án. Sanbaka sẽ luôn được cập nhật các chức năng mới nhất của Airi.
 
+## Dự án fork con sinh ra từ dự án này
+
+- [@zennomi/pixi-live2d-display](https://github.com/zennomi/pixi-live2d-display): Live2D display for Pixi.js, bổ sung tính năng hiển thị nhiều expression cùng một lúc.
+- [@zennomi/CubismWebFramework](https://github.com/zennomi/CubismWebFramework): CubismWebFramework is a port of Live2D Cubism SDK for Web, bổ sung ExpressionMotionManager.
+
 # From the original README of Airi:
 
 > [!NOTE]
