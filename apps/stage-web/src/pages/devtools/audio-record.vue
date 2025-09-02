@@ -1,45 +1,73 @@
-<script lang="ts" setup>
-import { Button } from '@proj-airi/stage-ui/components'
-import { Option, Select } from '@proj-airi/ui'
-import { onMounted, onUnmounted } from 'vue'
+<script setup lang="ts">
+import { useDevicesList, useObjectUrl } from '@vueuse/core'
+import { BufferTarget, MediaStreamAudioTrackSource, Output, QUALITY_MEDIUM, WavOutputFormat } from 'mediabunny'
+import { computed, ref } from 'vue'
 
-import { useAudioInput } from '../../composables/audio-input'
-import { useAudioRecord } from '../../composables/audio-record'
+const { audioInputs } = useDevicesList({ constraints: { audio: true }, requestPermissions: true })
+const constraintId = ref('')
 
-const { audioInputs, selectedAudioInputId, start, stop, media, request } = useAudioInput()
-const { startRecord, stopRecord } = useAudioRecord(media.stream, start)
+async function getMediaStreamTrack(constraint: ConstrainDOMString) {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: constraint } })
+  return stream.getAudioTracks()[0]
+}
 
-onMounted(() => request())
-onUnmounted(() => stop())
+let output: Output | undefined
+let audioInputTrack: MediaStreamAudioTrack | undefined
+let format: string | undefined
+
+const recorded = ref<ArrayBuffer[]>([])
+const recordedUrls = computed(() => recorded.value.map(rec => useObjectUrl(new Blob([rec], { type: format })).value))
+
+async function handleStart() {
+  audioInputTrack = await getMediaStreamTrack(constraintId.value)
+  output = new Output({ format: new WavOutputFormat(), target: new BufferTarget() })
+
+  const audioSource = new MediaStreamAudioTrackSource(audioInputTrack, { codec: 'pcm-f32', bitrate: QUALITY_MEDIUM })
+  audioSource.errorPromise.catch(console.error)
+  output.addAudioTrack(audioSource)
+
+  format = await output.getMimeType()
+  await output.start()
+}
+
+async function handleStop() {
+  await output?.finalize()
+  const bufferTarget = output?.target as BufferTarget | undefined
+  bufferTarget?.buffer && recorded.value.push(bufferTarget?.buffer)
+}
+
+function handleCancel() {
+  output?.cancel()
+}
 </script>
 
 <template>
   <div>
-    <Select v-model="selectedAudioInputId" @change="() => start()">
-      <template #default="{ value }">
-        <div>
-          {{ value ? audioInputs.find(device => device.deviceId === value)?.label : 'Select Audio Input' }}
-        </div>
-      </template>
-      <template #options="{ hide }">
-        <Option
-          v-for="device in audioInputs"
-          :key="device.deviceId"
-          :value="device.deviceId"
-          :active="device.deviceId === selectedAudioInputId"
-          @click="hide()"
-        >
-          {{ device.label }}
-        </Option>
-      </template>
-    </Select>
-    <div class="mt-4 w-full flex justify-center gap-2">
-      <Button @click="startRecord">
-        Start Recording
-      </Button>
-      <Button @click="stopRecord">
-        Stop Recording
-      </Button>
+    <div>
+      <select v-model="constraintId">
+        <option value="">
+          Select
+        </option>
+        <option v-for="(item, index) of audioInputs" :key="index" :value="item.deviceId">
+          {{ item.label }}
+        </option>
+      </select>
+    </div>
+    <div space-x-2>
+      <button @click="handleStart">
+        Start
+      </button>
+      <button @click="handleCancel">
+        Cancel
+      </button>
+      <button @click="handleStop">
+        Stop
+      </button>
+    </div>
+    <div>
+      <audio v-for="(url, index) in recordedUrls" :key="index" controls>
+        <source :src="url" type="audio/wav">
+      </audio>
     </div>
   </div>
 </template>

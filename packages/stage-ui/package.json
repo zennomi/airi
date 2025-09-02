@@ -95,6 +95,7 @@
     "gpuu": "^1.0.4",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
+    "mediabunny": "^1.11.2",
     "nanoid": "^5.1.5",
     "pinia": "^3.0.3",
     "pixi-filters": "4",
