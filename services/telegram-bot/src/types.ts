@@ -1,9 +1,9 @@
 import type { FileFlavor } from '@grammyjs/files'
 import type { Logg } from '@guiiai/logg'
+import type { Message as LLMMessage } from '@xsai/shared-chat'
 import type { Bot, Context } from 'grammy'
 import type { Message } from 'grammy/types'
 
-import type { createAttentionHandler } from './bots/telegram/agent/attention-handler'
 import type { CancellablePromise } from './utils/promise'
 
 export interface PendingMessage {
@@ -14,10 +14,8 @@ export interface PendingMessage {
 
 export type ExtendedContext = FileFlavor<Context>
 
-export interface BotSelf {
+export interface BotContext {
   bot: Bot
-  currentTask: CancellablePromise<Message.TextMessage> | null
-  currentAbortController: AbortController | null
   messageQueue: Array<{
     message: Message
     status: 'pending' | 'interpreting' | 'ready'
@@ -26,9 +24,19 @@ export interface BotSelf {
   processedIds: Set<string>
   logger: Logg
   processing: boolean
-  attentionHandler: ReturnType<typeof createAttentionHandler>
   lastInteractedNChatIds: string[]
-  currentProcessingStartTime: number | null
+  currentProcessingStartTime?: number
+  chats: Map<string, ChatContext>
+}
+
+export interface ChatContext {
+  chatId: string
+
+  currentTask?: CancellablePromise<Message.TextMessage>
+  currentAbortController?: AbortController
+
+  messages: LLMMessage[]
+  actions: { action: Action, result: unknown }[]
 }
 
 export interface ContinueAction {

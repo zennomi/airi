@@ -1,8 +1,8 @@
 import type { Message } from 'grammy/types'
 
-import type { AttentionConfig, AttentionState, BotSelf } from '../../../types'
+import type { AttentionConfig, AttentionState, BotContext } from '../../../types'
 
-export function createAttentionHandler(bot: BotSelf, config: AttentionConfig) {
+export function createAttentionHandler(bot: BotContext, config: AttentionConfig) {
   // Private state
   const state: AttentionState = {
     currentResponseRate: config.initialResponseRate,

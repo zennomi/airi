@@ -13,22 +13,23 @@ import { message } from '@xsai/utils-chat'
 import { parse } from 'best-effort-json-parser'
 
 import { personality, systemTicking } from '../prompts'
-import { div, span } from '../prompts/utils'
+import { div, span, vif } from '../prompts/utils'
 
 export async function imagineAnAction(
-  _botId: string,
-  currentAbortController: AbortController,
+  botId: string,
+  currentAbortController: AbortController | undefined,
   messages: LLMMessage[],
   actions: { action: Action, result: unknown }[],
   globalStates: {
     unreadMessages: Record<string, Message[]>
+    incomingMessages?: Message[]
   },
 ): Promise<Action | undefined> {
   const logger = useLogg('imagineAnAction').useGlobalConfig()
   const tracer = trace.getTracer('airi.telegram.bot')
 
   return await tracer.startActiveSpan('telegram.module.generate_agent_action.generate', async (s) => {
-    s.setAttribute('telegram.bot.id', _botId)
+    s.setAttribute('telegram.bot.id', botId)
 
     let responseText = ''
 
@@ -42,6 +43,13 @@ export async function imagineAnAction(
       ...messages,
       message.user(
         div(
+          vif(
+            globalStates?.incomingMessages?.length > 0,
+            div(
+              'Incoming messages:',
+              globalStates?.incomingMessages?.filter(Boolean).map(msg => `- ${msg?.text}`).join('\n'),
+            ),
+          ),
           'History actions:',
           actions.map(a => `- Action: ${JSON.stringify(a.action)}, Result: ${JSON.stringify(a.result)}`).join('\n'),
           span(`
@@ -68,7 +76,7 @@ export async function imagineAnAction(
           baseURL: env.LLM_API_BASE_URL!,
           model: env.LLM_MODEL!,
           messages: requestMessages,
-          abortSignal: currentAbortController.signal,
+          abortSignal: currentAbortController?.signal,
         } satisfies GenerateTextOptions
         if (env.LLM_OLLAMA_DISABLE_THINK) {
           (req as Record<string, unknown>).think = false
@@ -107,7 +115,7 @@ export async function imagineAnAction(
           .trim()
 
         const action = parse(responseText) as Action
-        s.setAttribute('telegram.bot.id', _botId)
+        s.setAttribute('telegram.bot.id', botId)
         s.setAttribute('telegram.module.generate_agent_action.parsed_action', JSON.stringify(action))
 
         s.end()
