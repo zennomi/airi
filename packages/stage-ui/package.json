@@ -99,7 +99,7 @@
     "nanoid": "^5.1.5",
     "pinia": "^3.0.3",
     "pixi-filters": "4",
-    "pixi-live2d-display": "^0.4.0",
+    "pixi-live2d-display": "npm:@zennomi/pixi-live2d-display@^0.4.1",
     "postprocessing": "^6.37.7",
     "rehype-katex": "^7.0.1",
     "rehype-stringify": "^10.0.1",

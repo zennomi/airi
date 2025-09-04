@@ -28,9 +28,11 @@ const emit = defineEmits<{
   (e: 'motionStart', group: string, index: number): void
   (e: 'motionEnd'): void
   (e: 'hit', hitAreas: string[]): void
+  (e: 'modelLoaded'): void
 }>()
 
 const live2dCanvasRef = ref<InstanceType<typeof Live2DCanvas>>()
+const live2dModelRef = ref<InstanceType<typeof Live2DModel>>()
 
 // Event handlers for motion events
 function onMotionStart(group: string, index: number) {
@@ -52,6 +54,12 @@ defineExpose({
   canvasElement: () => {
     return live2dCanvasRef.value?.canvasElement()
   },
+  setExpression: (expressionName: string, overlapping?: boolean) => {
+    return live2dModelRef.value?.setExpression(expressionName, overlapping)
+  },
+  unsetExpression: (expressionName: string) => {
+    return live2dModelRef.value?.unsetExpression(expressionName)
+  },
 })
 </script>
 
@@ -66,6 +74,7 @@ defineExpose({
       max-h="100dvh"
     >
       <Live2DModel
+        ref="live2dModelRef"
         :model-src="modelSrc"
         :app="app"
         :mouth-open-size="mouthOpenSize"
@@ -80,6 +89,7 @@ defineExpose({
         @hit="onHit"
         @motion-start="onMotionStart"
         @motion-end="onMotionEnd"
+        @model-loaded="emit('modelLoaded')"
       />
     </Live2DCanvas>
   </Screen>

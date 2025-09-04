@@ -17,6 +17,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import Live2DScene from './Live2D.vue'
 import VRMScene from './VRM.vue'
 
+import { useAppearanceExpressions } from '../../composables/live2d/apperance'
 import { useDelayMessageQueue, useEmotionsMessageQueue, useMessageContentQueue } from '../../composables/queues'
 import { llmInferenceEndToken } from '../../constants'
 import { EMOTION_EmotionMotionName_value, EMOTION_THINK, EMOTION_VRMExpressionName_value } from '../../constants/emotions'
@@ -73,6 +74,8 @@ const live2dStore = useLive2d()
 const vrmStore = useVRM()
 
 const showStage = ref(true)
+
+const { applyAppearanceState } = useAppearanceExpressions({ stageModelRenderer, live2dSceneRef })
 
 live2dStore.onShouldUpdateView(async () => {
   showStage.value = false
@@ -328,6 +331,7 @@ defineExpose({
         :disable-focus-at="live2dDisableFocus"
         @hit="handleHitEvent"
         @motion-end="handleMotionEnd"
+        @model-loaded="applyAppearanceState"
       />
       <VRMScene
         v-if="stageModelRenderer === 'vrm' && showStage"

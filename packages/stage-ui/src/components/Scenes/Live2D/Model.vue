@@ -263,8 +263,6 @@ async function loadModel() {
     })
 
     emits('modelLoaded')
-
-    model.value.internalModel.coreModel.setParameterValueById('Param_Blush', 10)
   }
   finally {
     modelLoading.value = false
@@ -276,8 +274,12 @@ async function setMotion(motionName: string, index?: number) {
   return !!(await model.value?.motion(motionName, index))
 }
 
-async function setExpression(expressionName: string) {
-  return !!(await model.value?.expression(expressionName))
+async function setExpression(expressionName: string, overlapping = false) {
+  return !!(await model.value?.internalModel.motionManager.expressionManager?.setExpression(expressionName, overlapping))
+}
+
+async function unsetExpression(expressionName: string) {
+  return !!(await model.value?.internalModel.motionManager.expressionManager?.unsetExpression(expressionName))
 }
 
 const handleResize = useDebounceFn(setScaleAndPosition, 100)
@@ -322,6 +324,7 @@ function listExpressions() {
 defineExpose({
   setMotion,
   setExpression,
+  unsetExpression,
   listMotionGroups,
   listExpressions,
 })

@@ -73,7 +73,7 @@
     "onnxruntime-web": "^1.22.0",
     "pinia": "^3.0.3",
     "pixi-filters": "^4.2.0",
-    "pixi-live2d-display": "^0.4.0",
+    "pixi-live2d-display": "npm:@zennomi/pixi-live2d-display@^0.4.1",
     "rehype-stringify": "^10.0.1",
     "reka-ui": "^2.5.0",
     "remark-parse": "^11.0.0",

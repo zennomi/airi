@@ -16,6 +16,8 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ChatHistory from '../Widgets/ChatHistory.vue'
+import AppranceTabContent from './AppranceTabContent.vue'
+import InteractiveAreaTab from './InteractiveAreaTab.vue'
 
 const messageInput = ref('')
 const listening = ref(false)
@@ -32,6 +34,8 @@ const { send, onAfterMessageComposed, discoverToolsCompatibility } = useChatStor
 const { messages } = storeToRefs(useChatStore())
 const { audioContext } = useAudioContext()
 const { t } = useI18n()
+
+const tab = ref<string>('chat')
 
 const { transcribe: generate, terminate } = useWhisper(WhisperWorker, {
   onComplete: async (res) => {
@@ -137,7 +141,8 @@ onAfterMessageComposed(async () => {
 
 <template>
   <div flex="col" items-center pt-4>
-    <div h-full max-h="[85vh]" w-full py="4">
+    <InteractiveAreaTab v-model="tab" :theme-colors-hue-dynamic="themeColorsHueDynamic" />
+    <div v-if="tab === 'chat'" h-full max-h="[85vh]" w-full py="4">
       <div
         flex="~ col"
         border="solid 4 primary-200/20 dark:primary-400/20"
@@ -163,6 +168,9 @@ onAfterMessageComposed(async () => {
           />
         </div>
       </div>
+    </div>
+    <div v-if="tab === 'appearance'" h-full max-h="[85vh]" w-full py="4">
+      <AppranceTabContent />
     </div>
   </div>
 </template>
