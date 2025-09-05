@@ -10,10 +10,12 @@ export const AMI: {
     glass: {
       default: true,
       expression: 'Glasses Toggle',
+      name: 'Glasses',
     },
     jacket: {
       default: true,
       expression: 'Jacket Toggle',
+      name: 'Jacket',
     },
   },
 }

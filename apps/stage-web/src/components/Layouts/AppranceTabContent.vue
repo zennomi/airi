@@ -10,6 +10,11 @@ const { appearanceState, character } = storeToRefs(characterStore)
 const appearanceIconConfigs = [
   { key: 'glass', on: 'i-solar:glasses-bold-duotone', off: 'i-solar:glasses-outline' },
   { key: 'jacket', on: 'i-solar:t-shirt-bold-duotone', off: 'i-solar:t-shirt-outline' },
+  { key: 'shirt', on: 'i-solar:body-bold-duotone', off: 'i-solar:body-line-duotone' },
+  { key: 'skirt', on: 'i-solar:skirt-bold-duotone', off: 'i-solar:skirt-line-duotone' },
+  { key: 'underwear', on: 'i-solar:body-shape-bold-duotone', off: 'i-solar:body-shape-line-duotone' },
+  { key: 'full', on: 'i-solar:fire-bold-duotone', off: 'i-solar:fire-line-duotone' },
+  { key: 'bunny', on: 'i-ph:rabbit-duotone', off: 'i-ph:rabbit' },
 ]
 
 // Default icons when a specific key is not configured above
@@ -47,32 +52,26 @@ function toggleAppearance(appearanceKey: string) {
         Appearance Settings
       </h3>
       <p class="text-sm text-neutral-600 dark:text-neutral-400">
-        Toggle different appearance elements for your character
+        Toggle different appearance elements for Sanbaka
       </p>
     </div>
 
     <!-- Appearance Controls -->
     <div v-if="availableAppearances.length > 0" class="space-y-3">
-      <div
-        v-for="appearance in availableAppearances"
-        :key="appearance.key"
-        class="appearance-toggle-item"
-      >
+      <div v-for="appearance in availableAppearances" :key="appearance.key" class="appearance-toggle-item">
         <label
           class="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 transition-all duration-250 ease-in-out"
           :class="[
             appearanceState[appearance.key]
-              ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-900'
+              ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-100 dark:border-primary-900'
               : 'bg-neutral-50 dark:bg-neutral-800 border-neutral-100 dark:border-neutral-700',
             'border-2 hover:border-primary-500/30 dark:hover:border-primary-400/30',
-          ]"
-          @click="toggleAppearance(appearance.key)"
+          ]" @click="toggleAppearance(appearance.key)"
         >
           <div class="flex items-center gap-3">
             <!-- Icon based on appearance type -->
             <div
-              class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors duration-200"
-              :class="[
+              class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors duration-200" :class="[
                 appearanceState[appearance.key]
                   ? 'bg-primary-100 dark:bg-primary-800 text-primary-600 dark:text-primary-400'
                   : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400',
@@ -84,17 +83,16 @@ function toggleAppearance(appearanceKey: string) {
             <!-- Appearance Info -->
             <div class="flex flex-col">
               <span
-                class="font-medium transition-colors duration-200"
-                :class="[
+                class="font-medium transition-colors duration-200" :class="[
                   appearanceState[appearance.key]
                     ? 'text-primary-700 dark:text-primary-300'
                     : 'text-neutral-700 dark:text-neutral-300',
                 ]"
               >
-                {{ appearance.expression }}
+                {{ appearance.name }}
               </span>
               <span class="text-xs text-neutral-500 dark:text-neutral-400">
-                {{ appearance.key }}
+                {{ appearance.expression }}
               </span>
             </div>
           </div>
@@ -102,14 +100,11 @@ function toggleAppearance(appearanceKey: string) {
           <!-- Toggle Switch -->
           <div class="relative">
             <input
-              :checked="appearanceState[appearance.key]"
-              type="checkbox"
-              class="sr-only"
+              :checked="appearanceState[appearance.key]" type="checkbox" class="sr-only"
               @change="toggleAppearance(appearance.key)"
             >
             <div
-              class="toggle-switch h-6 w-11 rounded-full transition-colors duration-200"
-              :class="[
+              class="toggle-switch h-6 w-11 rounded-full transition-colors duration-200" :class="[
                 appearanceState[appearance.key]
                   ? 'bg-primary-500 dark:bg-primary-400'
                   : 'bg-neutral-300 dark:bg-neutral-600',
@@ -139,7 +134,7 @@ function toggleAppearance(appearanceKey: string) {
 
 <style scoped>
 .appearance-tab-content {
-  @apply p-4;
+  @apply px-4 py-2;
 }
 
 .appearance-toggle-item {

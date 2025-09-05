@@ -5,37 +5,37 @@
 </template>
 
 <style lang="css" scoped>
-/*
-CSS Background Patterns by MagicPattern
-https://www.magicpattern.design/tools/css-backgrounds
-*/
 .cross-background-container {
   background-color: #ffffff;
-  --cross-color: oklch(0.85 calc(var(--chromatic-chroma) * 0.3) var(--chromatic-hue) / 0.2);
-  background:
-    radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 80%, transparent),
-    radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 80%, transparent) 25px 25px,
-    linear-gradient(var(--cross-color) 2px, transparent 2px) 0 -1px,
-    linear-gradient(90deg, var(--cross-color) 2px, #ffffff 2px) -1px 0;
-  background-size:
-    50px 50px,
-    50px 50px,
-    25px 25px,
-    25px 25px;
+  position: relative;
+}
+
+.cross-background-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('./hust.png');
+  background-repeat: repeat;
+  background-size: 100px auto;
+  background-blend-mode: normal;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cross-background-container>* {
+  position: relative;
+  z-index: 1;
 }
 
 .dark .cross-background-container {
   background-color: #121212;
-  --cross-color: oklch(0.2 calc(var(--chromatic-chroma) * 0.3) var(--chromatic-hue));
-  background:
-    radial-gradient(circle, transparent 20%, #121212 20%, #121212 80%, transparent 80%, transparent),
-    radial-gradient(circle, transparent 20%, #121212 20%, #121212 80%, transparent 80%, transparent) 25px 25px,
-    linear-gradient(var(--cross-color) 2px, transparent 2px) 0 -1px,
-    linear-gradient(90deg, var(--cross-color) 2px, #121212 2px) -1px 0;
-  background-size:
-    50px 50px,
-    50px 50px,
-    25px 25px,
-    25px 25px;
+}
+
+.dark .cross-background-container::before {
+  background-image: url('./hust.png');
 }
 </style>
