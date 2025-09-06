@@ -68,7 +68,7 @@
     "unplugin-raw": "^0.6.1",
     "unplugin-unused": "^0.5.2",
     "unplugin-vue": "^7.0.1",
-    "vite": "catalog:rolldown-vite",
+    "vite": "^7.1.4",
     "vite-plugin-inspect": "^11.3.3",
     "vitest": "^3.2.4"
   },
