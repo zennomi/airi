@@ -40,6 +40,7 @@
     "@antfu/eslint-config": "^5.2.1",
     "@antfu/ni": "^25.0.0",
     "@arethetypeswrong/core": "^0.18.2",
+    "@electron-toolkit/eslint-config-ts": "^3.0.0",
     "@iconify/utils": "^3.0.1",
     "@proj-airi/unocss-preset-chromatic": "^1.0.0",
     "@types/node": "^24.3.0",
@@ -67,7 +68,7 @@
     "unplugin-raw": "^0.6.1",
     "unplugin-unused": "^0.5.2",
     "unplugin-vue": "^7.0.1",
-    "vite": "^7.1.4",
+    "vite": "catalog:rolldown-vite",
     "vite-plugin-inspect": "^11.3.3",
     "vitest": "^3.2.4"
   },
@@ -80,7 +81,6 @@
     "apps/**"
   ],
   "pnpm": {
-    "neverBuiltDependencies": [],
     "overrides": {
       "array-flatten": "npm:@nolyfill/array-flatten@^1.0.44",
       "axios": "npm:feaxios@^0.0.23",
@@ -90,7 +90,25 @@
       "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
       "string.prototype.matchall": "npm:@nolyfill/string.prototype.matchall@^1.0.44"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@discordjs/opus",
+      "@ffmpeg-installer/darwin-arm64",
+      "@parcel/watcher",
+      "bufferutil",
+      "electron",
+      "es5-ext",
+      "esbuild",
+      "ffmpeg-static",
+      "msw",
+      "onnxruntime-node",
+      "protobufjs",
+      "sharp",
+      "simple-git-hooks",
+      "spawn-sync",
+      "utf-8-validate",
+      "vue-demi"
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
