@@ -1,29 +1,47 @@
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { env, platform } from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { Format, LogLevel, setGlobalFormat, setGlobalLogLevel } from '@guiiai/logg'
+import { app, BrowserWindow, shell } from 'electron'
+import { isMacOS } from 'std-env'
 
 import icon from '../../resources/icon.png?asset'
 
+setGlobalFormat(Format.Pretty)
+setGlobalLogLevel(LogLevel.Log)
+
+if (/^true$/i.test(env.APP_REMOTE_DEBUG || '')) {
+  const remoteDebugPort = Number(env.APP_REMOTE_DEBUG_PORT || '9222')
+  if (Number.isNaN(remoteDebugPort) || !Number.isInteger(remoteDebugPort) || remoteDebugPort < 0 || remoteDebugPort > 65535) {
+    throw new Error(`Invalid remote debug port: ${env.APP_REMOTE_DEBUG_PORT}`)
+  }
+
+  app.commandLine.appendSwitch('remote-debugging-port', String(remoteDebugPort))
+  app.commandLine.appendSwitch('remote-allow-origins', `http://localhost:${remoteDebugPort}`)
+}
+
+app.dock?.setIcon(icon)
+
 function createWindow(): void {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 450.0,
+    height: 600.0,
     show: false,
-    autoHideMenuBar: true,
-    ...(platform === 'linux' ? { icon } : {}),
+    icon,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(dirname(fileURLToPath(import.meta.url)), '../preload/index.mjs'),
       sandbox: false,
     },
+    frame: false,
+    titleBarStyle: isMacOS ? 'hidden' : undefined,
+    transparent: true,
+    hasShadow: false,
   })
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-
+  mainWindow.setWindowButtonVisibility(false)
+  mainWindow.on('ready-to-show', () => mainWindow!.show())
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -44,7 +62,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('ai.moeru.airi')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -53,18 +71,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  // eslint-disable-next-line no-console
-  ipcMain.on('ping', () => console.log('pong'))
-
   createWindow()
-
-  app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0)
-      createWindow()
-  })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

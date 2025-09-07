@@ -701,6 +701,9 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.4
         version: 0.8.4
+      '@guiiai/logg':
+        specifier: ^1.0.10
+        version: 1.0.10
       '@huggingface/transformers':
         specifier: ^3.7.2
         version: 3.7.2
@@ -842,6 +845,9 @@ importers:
       shiki:
         specifier: ^3.12.2
         version: 3.12.2
+      std-env:
+        specifier: ^3.9.0
+        version: 3.9.0
       three:
         specifier: ^0.179.1
         version: 0.179.1
