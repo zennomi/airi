@@ -40,6 +40,7 @@ function createWindow(): void {
     hasShadow: false,
   })
 
+  mainWindow.setAlwaysOnTop(true)
   mainWindow.setWindowButtonVisibility(false)
   mainWindow.on('ready-to-show', () => mainWindow!.show())
   mainWindow.webContents.setWindowOpenHandler((details) => {

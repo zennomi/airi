@@ -1,5 +1,6 @@
 {
   "name": "@proj-airi/stage-tamagotchi-electron",
+  "type": "module",
   "version": "1.0.0",
   "description": "An Electron application with Vue and TypeScript",
   "author": "example.com",
@@ -10,6 +11,8 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "pnpm run typecheck:node && pnpm run typecheck:web",
+    "app:dev": "pnpm run dev",
+    "app:build": "pnpm run build",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "pnpm run typecheck && electron-vite build",
