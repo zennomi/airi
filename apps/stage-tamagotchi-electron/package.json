@@ -43,7 +43,7 @@
     "@tresjs/cientos": "^4.3.1",
     "@tresjs/core": "^4.3.6",
     "@types/audioworklet": "^0.0.83",
-    "@unbird/eventa": "^0.0.5",
+    "@unbird/eventa": "^0.0.8",
     "@vueuse/core": "^13.9.0",
     "@vueuse/shared": "^13.9.0",
     "@xsai-ext/providers-cloud": "catalog:",
