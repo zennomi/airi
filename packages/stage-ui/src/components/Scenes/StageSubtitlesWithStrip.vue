@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+import MarkdownRenderer from '../Markdown/MarkdownRenderer.vue'
 
 import { useChatStore } from '../../stores/chat'
 

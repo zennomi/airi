@@ -21,6 +21,16 @@ export default defineConfig({
       allow: [join('..', '..')],
     },
   },
+  optimizeDeps: {
+    include: [
+      // <MarkdownRenderer /> will be problematic in Histoire without these
+      '@shikijs/rehype',
+      'rehype-stringify',
+      'remark-math',
+      'remark-parse',
+      'unified',
+    ],
+  },
   plugins: [
     // TODO: Type wrong for `unplugin-yaml` in Histoire required
     // Vite version, wait until Histoire updates to support Vite 7
