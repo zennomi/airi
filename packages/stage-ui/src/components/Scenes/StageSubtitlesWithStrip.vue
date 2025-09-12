@@ -20,7 +20,7 @@ const { streamingMessage } = useChatStore()
     transform="translate-x--1/2"
   >
     <div bg="primary-50" rounded-xl px-10 py-6>
-      <MarkdownRenderer :content="streamingMessage.content as string" />
+      <MarkdownRenderer :content="(streamingMessage.content as string)" />
     </div>
   </div>
 </template>
