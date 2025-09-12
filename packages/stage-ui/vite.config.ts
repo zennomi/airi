@@ -29,6 +29,12 @@ export default defineConfig({
       'remark-math',
       'remark-parse',
       'unified',
+      // Histoire dependencies (Copied from Histoire's vite.ts)
+      'flexsearch',
+      'shiki',
+      // Shiki dependencies
+      'vscode-oniguruma',
+      'vscode-textmate',
     ],
   },
   plugins: [
