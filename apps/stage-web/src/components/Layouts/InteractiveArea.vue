@@ -11,6 +11,7 @@ import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consci
 import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { BasicTextarea } from '@proj-airi/ui'
+import { useDark } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -30,12 +31,13 @@ const { themeColorsHueDynamic } = storeToRefs(useSettings())
 
 const { askPermission } = useSettingsAudioDevice()
 const { enabled, selectedAudioInput } = storeToRefs(useSettingsAudioDevice())
-const { send, onAfterMessageComposed, discoverToolsCompatibility } = useChatStore()
+const { send, onAfterMessageComposed, discoverToolsCompatibility, cleanupMessages } = useChatStore()
 const { messages } = storeToRefs(useChatStore())
 const { audioContext } = useAudioContext()
 const { t } = useI18n()
 
 const tab = ref<string>('chat')
+const isDark = useDark({ disableTransition: false })
 
 const { transcribe: generate, terminate } = useWhisper(WhisperWorker, {
   onComplete: async (res) => {
@@ -149,7 +151,7 @@ onAfterMessageComposed(async () => {
         h-full w-full overflow-scroll rounded-xl
         bg="primary-50/50 dark:primary-950/70" backdrop-blur-md
       >
-        <ChatHistory h-full flex-1 p-4 w="full" max-h="<md:[60%]" />
+        <ChatHistory h-full flex-1 w="full" max-h="<md:[60%]" />
         <div h="<md:full" flex gap-2>
           <BasicTextarea
             v-model="messageInput"
@@ -167,6 +169,33 @@ onAfterMessageComposed(async () => {
             @compositionend="isComposing = false"
           />
         </div>
+      </div>
+      <div absolute bottom--8 right-0 flex gap-2>
+        <button
+          class="max-h-[10lh] min-h-[1lh]"
+          bg="neutral-100 dark:neutral-800"
+          text="lg neutral-500 dark:neutral-400"
+          hover:text="red-500 dark:red-400"
+          flex items-center justify-center rounded-md p-2 outline-none
+          transition-colors transition-transform active:scale-95
+          @click="cleanupMessages"
+        >
+          <div class="i-solar:trash-bin-2-bold-duotone" />
+        </button>
+
+        <button
+          class="max-h-[10lh] min-h-[1lh]"
+          bg="neutral-100 dark:neutral-800"
+          text="lg neutral-500 dark:neutral-400"
+          flex items-center justify-center rounded-md p-2 outline-none
+          transition-colors transition-transform active:scale-95
+          @click="isDark = !isDark"
+        >
+          <Transition name="fade" mode="out-in">
+            <div v-if="isDark" i-solar:moon-bold />
+            <div v-else i-solar:sun-2-bold />
+          </Transition>
+        </button>
       </div>
     </div>
     <div v-if="tab === 'appearance'" h-full max-h="[85vh]" w-full py="4">

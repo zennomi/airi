@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { TresContext } from '@tresjs/core'
-import type { SphericalHarmonics3, Texture, WebGLRenderTarget,
-} from 'three'
+import type { DirectionalLight, SphericalHarmonics3, Texture, WebGLRenderTarget } from 'three'
 
 import { TresCanvas } from '@tresjs/core'
 import { EffectComposerPmndrs, HueSaturationPmndrs } from '@tresjs/post-processing'
@@ -11,6 +10,8 @@ import { storeToRefs } from 'pinia'
 import { BlendFunction } from 'postprocessing'
 import {
   ACESFilmicToneMapping,
+  Euler,
+  MathUtils,
   PerspectiveCamera,
   Plane,
   Raycaster,
@@ -53,10 +54,11 @@ const {
   lookAtTarget,
   eyeHeight,
 
-  directionalLightPosition,
-  directionalLightRotation,
   directionalLightIntensity,
   directionalLightColor,
+  directionalLightPosition,
+  directionalLightRotation,
+  directionalLightTarget,
 
   ambientLightIntensity,
   ambientLightColor,
@@ -75,6 +77,7 @@ const camera = shallowRef(new PerspectiveCamera())
 const controlsRef = shallowRef<InstanceType<typeof OrbitControls>>()
 const tresCanvasRef = shallowRef<TresContext>()
 const skyBoxEnvRef = ref<InstanceType<typeof SkyBoxEnvironment>>()
+const dirLightRef = ref<InstanceType<typeof DirectionalLight>>()
 
 function onTresReady(context: TresContext) {
   tresCanvasRef.value = context
@@ -91,6 +94,7 @@ let isUpdatingCamera = true
 const controlsReady = ref(false)
 const modelReady = ref(false)
 const sceneReady = ref(false)
+const dirLightReady = ref(false)
 const raycaster = new Raycaster()
 const mouse = new Vector2()
 
@@ -101,6 +105,10 @@ const irrSHTex = ref<SphericalHarmonics3 | null>(null)
 function onEnvReady(EnvPayload: { hdri: Texture | null, pmrem?: WebGLRenderTarget | null, irrSH: SphericalHarmonics3 | null }) {
   hdriTex.value = EnvPayload.hdri
   irrSHTex.value = EnvPayload.irrSH || null
+}
+
+function onDirLightReady() {
+  dirLightReady.value = true
 }
 
 watch(cameraFOV, (newFov) => {
@@ -156,9 +164,9 @@ function handleLoadModelProgress() {
 
 // Then start to set the camera position and target
 watch(
-  [controlsReady, modelReady],
+  [controlsReady, modelReady, dirLightReady],
   ([ctrlOk, modelOk]) => {
-    if (ctrlOk && modelOk && camera.value && controlsRef.value && controlsRef.value.controls) {
+    if (ctrlOk && modelOk && camera.value && controlsRef.value && controlsRef.value.controls && dirLightRef.value) {
       isUpdatingCamera = true
       try {
         camera.value.aspect = width.value / height.value
@@ -174,6 +182,16 @@ watch(
         camera.value.updateProjectionMatrix()
         controlsRef.value.controls.update()
         cameraDistance.value = controlsRef.value!.controls!.getDistance()
+
+        // setup initial target of directional light
+        dirLightRef.value.parent?.add(dirLightRef.value.target)
+        dirLightRef.value.target.position.set(
+          directionalLightTarget.value.x,
+          directionalLightTarget.value.y,
+          directionalLightTarget.value.z,
+        )
+        // console.debug("direction light target set: ", dirLightRef.value.target.position)
+        dirLightRef.value.target.updateMatrixWorld()
       }
       finally {
         isUpdatingCamera = false
@@ -236,6 +254,41 @@ function lookAtMouse(mouseX: number, mouseY: number) {
   // Pass the target to the model
   modelRef.value?.lookAtUpdate(lookAtTarget.value)
 }
+
+function updateDirLightTarget(newRotation: { x: number, y: number, z: number }) {
+  const light = dirLightRef.value
+  if (!light)
+    return
+
+  const { x: rx, y: ry, z: rz } = newRotation
+  const lightPosition = new Vector3(
+    directionalLightPosition.value.x,
+    directionalLightPosition.value.y,
+    directionalLightPosition.value.z,
+  )
+  const origin = new Vector3(0, 0, 0)
+  const euler = new Euler(
+    MathUtils.degToRad(rx),
+    MathUtils.degToRad(ry),
+    MathUtils.degToRad(rz),
+    'XYZ',
+  )
+  const initialForward = origin.clone().sub(lightPosition).normalize()
+  const newForward = initialForward.applyEuler(euler).normalize()
+  const distance = lightPosition.distanceTo(origin)
+  const target = lightPosition.clone().addScaledVector(newForward, distance)
+
+  light.target.position.copy(target)
+
+  light.target.updateMatrixWorld()
+
+  directionalLightTarget.value = { x: target.x, y: target.y, z: target.z }
+  // console.debug("directional Light target update!: ", directionalLightTarget.value)
+}
+
+watch(directionalLightRotation, (newRotation) => {
+  updateDirLightTarget(newRotation)
+}, { deep: true })
 
 watch(cameraPosition, (newPosition) => {
   if (!sceneReady.value || !modelRef.value)
@@ -322,11 +375,12 @@ defineExpose({
         cast-shadow
       />
       <TresDirectionalLight
+        ref="dirLightRef"
         :color="formatHex(directionalLightColor)"
         :position="[directionalLightPosition.x, directionalLightPosition.y, directionalLightPosition.z]"
-        :rotation="[directionalLightRotation.x, directionalLightRotation.y, directionalLightRotation.z]"
         :intensity="directionalLightIntensity"
         cast-shadow
+        @ready="onDirLightReady"
       />
       <Suspense>
         <EffectComposerPmndrs>

@@ -1,7 +1,7 @@
 {
   "name": "@proj-airi/server-runtime",
   "type": "module",
-  "version": "0.7.2-beta.2",
+  "version": "0.7.2-beta.3",
   "description": "Server runtime implementation for AIRI running in different environments",
   "author": {
     "name": "Moeru AI Project AIRI Team",
@@ -35,7 +35,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@guiiai/logg": "^1.0.10",
+    "@guiiai/logg": "catalog:",
     "@proj-airi/server-shared": "workspace:^",
     "crossws": "^0.4.1",
     "h3": "^1.15.4",

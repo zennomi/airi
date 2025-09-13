@@ -1,7 +1,7 @@
 import type { GenerateTextOptions } from '@xsai/generate-text'
 import type { Message, PhotoSize } from 'grammy/types'
 
-import type { BotSelf } from '../types'
+import type { BotContext } from '../types'
 
 import { Buffer } from 'node:buffer'
 import { env } from 'node:process'
@@ -14,7 +14,7 @@ import { message } from '@xsai/utils-chat'
 
 import { findPhotosDescriptions, recordPhoto } from '../models'
 
-export async function interpretPhotos(state: BotSelf, msg: Message, photos: PhotoSize[]) {
+export async function interpretPhotos(state: BotContext, msg: Message, photos: PhotoSize[]) {
   try {
     const fileIds = photos.map(photo => photo.file_id)
     const photoDescriptions = await findPhotosDescriptions(fileIds)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import Screen from '../Misc/Screen.vue'
 import Live2DCanvas from './Live2D/Canvas.vue'
@@ -30,6 +30,10 @@ const emit = defineEmits<{
   (e: 'hit', hitAreas: string[]): void
   (e: 'modelLoaded'): void
 }>()
+const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
+
+const componentStateCanvas = defineModel<'pending' | 'loading' | 'mounted'>('canvasState', { default: 'pending' })
+const componentStateModel = defineModel<'pending' | 'loading' | 'mounted'>('modelState', { default: 'pending' })
 
 const live2dCanvasRef = ref<InstanceType<typeof Live2DCanvas>>()
 const live2dModelRef = ref<InstanceType<typeof Live2DModel>>()
@@ -50,6 +54,12 @@ function onHit(hitAreas: string[]) {
   emit('hit', hitAreas)
 }
 
+watch([componentStateModel, componentStateCanvas], () => {
+  componentState.value = (componentStateModel.value === 'mounted' && componentStateCanvas.value === 'mounted')
+    ? 'mounted'
+    : 'loading'
+})
+
 defineExpose({
   canvasElement: () => {
     return live2dCanvasRef.value?.canvasElement()
@@ -68,6 +78,7 @@ defineExpose({
     <Live2DCanvas
       ref="live2dCanvasRef"
       v-slot="{ app }"
+      v-model:state="componentStateCanvas"
       :width="width"
       :height="height"
       :resolution="2"
@@ -75,6 +86,7 @@ defineExpose({
     >
       <Live2DModel
         ref="live2dModelRef"
+        v-model:state="componentStateModel"
         :model-src="modelSrc"
         :app="app"
         :mouth-open-size="mouthOpenSize"

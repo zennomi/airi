@@ -14,6 +14,8 @@ export default await antfu(
       'apps/stage-tamagotchi/out/**',
       'apps/stage-tamagotchi/src/bindings/**',
       'apps/stage-tamagotchi/src-tauri/**',
+      'apps/stage-tamagotchi-electron/out/**',
+      'apps/stage-tamagotchi-electron/src/renderer/bindings/**',
       'crates/**',
       '**/drizzle/**',
       '**/.astro/**',

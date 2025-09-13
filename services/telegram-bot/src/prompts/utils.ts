@@ -25,10 +25,13 @@ export function span(...args: string[]) {
     .join(' ')
 }
 
-export function div(...args: (string | TextContentPart | TextContentPart[])[]) {
+export function div(...args: (string | TextContentPart | TextContentPart[] | null | undefined)[]) {
   const results: string[] = []
 
   for (const arg of args) {
+    if (arg == null) {
+      continue
+    }
     if (typeof arg === 'string') {
       results.push(arg)
     }
